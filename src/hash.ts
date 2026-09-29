@@ -10,7 +10,6 @@ const updateWithFile = (hash: Hash, cwd: string, file: string): void => {
   hash.update("\0");
 };
 
-// Self-computed hash so hooks also work outside git checkouts (tarballs, submodules).
 export const hashManifests = (cwd: string, files: string[]): string => {
   const hash = createHash("sha256");
 

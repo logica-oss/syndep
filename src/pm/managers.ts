@@ -66,23 +66,18 @@ export const PACKAGE_MANAGERS: Record<PackageManager, PackageManagerInfo> = {
 };
 
 const MANAGER_NAMES: ReadonlySet<string> = new Set(Object.keys(PACKAGE_MANAGERS));
-
 export const isPackageManager = (name: string): name is PackageManager => MANAGER_NAMES.has(name);
 
 const PRIORITY_ORDER: PackageManager[] = ["bun", "pnpm", "yarn", "npm", "deno"];
-
-// Lockfile presence priority when several exist at once.
 export const LOCKFILE_PRIORITY: Array<{ file: string; pm: PackageManager }> =
   PRIORITY_ORDER.flatMap((pm) => PACKAGE_MANAGERS[pm].lockFiles.map((file) => ({ file, pm })));
 
-// Hash scope for a detected PM: package.json plus that PM's own files.
 const getManifestCandidates = (pm: PackageManager): string[] => [
   "package.json",
   ...PACKAGE_MANAGERS[pm].extraManifests,
   ...PACKAGE_MANAGERS[pm].lockFiles,
 ];
 
-// Existing manifests for the PM detected in cwd.
 export const getManifestPaths = (options: ManifestScope): string[] => {
   const pm = detectPackageManager(options);
   return getManifestCandidates(pm).filter((file) => existsSync(path.join(options.cwd, file)));
