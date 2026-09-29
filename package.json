@@ -1,0 +1,70 @@
+{
+  "name": "syndep",
+  "version": "0.1.0",
+  "description": "Sync node_modules after git operations when manifests drifted.",
+  "keywords": [
+    "bun",
+    "deno",
+    "dependencies",
+    "git",
+    "hooks",
+    "install",
+    "npm",
+    "pnpm",
+    "sync",
+    "yarn"
+  ],
+  "license": "MIT",
+  "author": "Takuto Nagami",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/logica0419/syndep.git"
+  },
+  "bin": {
+    "syndep": "./dist/bin/syndep.mjs",
+    "syndep-bun": "./dist/bin/syndep-bun.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "bun -b tsdown",
+    "check": "bun -b tsc --noEmit",
+    "format": "bun -b sort-package-json && bun -b oxfmt --write",
+    "knip": "bun -b knip-bun",
+    "lint": "bun -b oxlint --fix",
+    "prepare": "simple-git-hooks",
+    "test": "bun -b vitest run"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.2",
+    "@types/node": "26.6.3",
+    "knip": "6.38.0",
+    "oxfmt": "0.71.0",
+    "oxlint": "1.86.0",
+    "oxlint-tsgolint": "7.0.2003",
+    "simple-git-hooks": "2.14.0",
+    "sort-package-json": "4.0.0",
+    "tsdown": "0.23.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.2"
+  },
+  "simple-git-hooks": {
+    "post-checkout": "bun src/bin/syndep.ts",
+    "post-merge": "bun src/bin/syndep.ts",
+    "post-rewrite": "bun src/bin/syndep.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "bun@1.4.2"
+}
