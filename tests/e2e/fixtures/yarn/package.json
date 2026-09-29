@@ -1,0 +1,4 @@
+{
+  "name": "syndep-e2e-yarn",
+  "packageManager": "yarn@1.22.22"
+}

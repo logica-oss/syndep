@@ -1,0 +1,4 @@
+{
+  "name": "syndep-e2e-pnpm",
+  "packageManager": "pnpm@12.8.1"
+}

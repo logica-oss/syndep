@@ -1,0 +1,4 @@
+{
+  "name": "syndep-e2e-bun",
+  "packageManager": "bun@1.4.2"
+}
