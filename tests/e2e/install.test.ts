@@ -1,29 +1,48 @@
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { afterAll, describe, expect, it } from "vitest";
 
+import { withRecursionGuard } from "../../src/guard.ts";
+import { hashManifests } from "../../src/hash.ts";
 import { syncDeps } from "../../src/index.ts";
-import type { PackageManager } from "../../src/pm/index.ts";
+import { detectPackageManager, getManifestPaths, type PackageManager } from "../../src/pm/index.ts";
 import { readRecordedHash } from "../../src/record.ts";
 
-const FIXTURE_ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures");
+const TEST_DIR = import.meta.dirname;
+const REPO_ROOT = path.resolve(TEST_DIR, "..", "..", "..");
+const FIXTURE_ROOT = path.join(TEST_DIR, "fixtures");
 
-const MISE_BIN = path.join(process.env["HOME"] ?? "", ".local/share/mise/installs");
+const miseBinPaths = (): string[] => {
+  try {
+    const result = Bun.spawnSync(["mise", "bin-paths", "-C", REPO_ROOT]);
+    if (!result.success) {
+      return [];
+    }
 
-const withMiseBin = (tool: string, version: string, subdir = "bin"): NodeJS.ProcessEnv => {
-  // Exclude mise shims so pnpm does not see the parent packageManager pin.
-  const filtered = (process.env["PATH"] ?? "")
-    .split(path.delimiter)
-    .filter((entry) => !entry.endsWith("/shims"))
-    .join(path.delimiter);
+    return result.stdout
+      .toString()
+      .split("\n")
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0);
+  } catch {
+    return [];
+  }
+};
+const MISE_PATHS = miseBinPaths();
 
-  return {
-    ...process.env,
-    PATH: `${path.join(MISE_BIN, tool, version, subdir)}${path.delimiter}${filtered}`,
-  };
+// Temp dirs have no mise config, so shims would fail version resolution.
+const PATH_WITHOUT_SHIMS = (process.env["PATH"] ?? "")
+  .split(path.delimiter)
+  .filter((entry) => !entry.endsWith("/shims"))
+  .join(path.delimiter);
+
+const TEST_ENV: NodeJS.ProcessEnv = {
+  ...process.env,
+  PATH: [...MISE_PATHS, PATH_WITHOUT_SHIMS]
+    .filter((entry) => entry.length > 0)
+    .join(path.delimiter),
 };
 
 const PM_NAMES = [
@@ -34,14 +53,6 @@ const PM_NAMES = [
   "deno",
 ] as const satisfies readonly PackageManager[];
 
-const ENVS: Record<PackageManager, NodeJS.ProcessEnv> = {
-  bun: withMiseBin("bun", "1.4.2"),
-  pnpm: withMiseBin("pnpm", "12.8.1", "."),
-  yarn: withMiseBin("yarn", "1.22.22"),
-  npm: { ...process.env },
-  deno: withMiseBin("deno", "2.9.7"),
-};
-
 const dirs: string[] = [];
 afterAll(() => {
   for (const dir of dirs) {
@@ -49,13 +60,14 @@ afterAll(() => {
   }
 });
 
-// Copy the fixture into a temp dir so each run starts from a virtual env
-// without node_modules or a recorded hash.
 const setupVirtualEnv = (pm: PackageManager): { dir: string; env: NodeJS.ProcessEnv } => {
   const dir = mkdtempSync(path.join(tmpdir(), `syndep-e2e-${pm}-`));
   dirs.push(dir);
+
   cpSync(path.join(FIXTURE_ROOT, pm), dir, { recursive: true });
-  return { dir, env: { ...ENVS[pm], COREPACK_ENABLE_STRICT: "0" } };
+  rmSync(path.join(dir, "node_modules"), { recursive: true, force: true });
+
+  return { dir, env: TEST_ENV };
 };
 
 const touchPackageJson = (dir: string): void => {
@@ -64,40 +76,116 @@ const touchPackageJson = (dir: string): void => {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
     throw new Error("fixture package.json is not an object");
   }
+
   const pkg: Record<string, unknown> = { ...raw };
   pkg["syndepE2e"] = Date.now();
+
   writeFileSync(pkgPath, JSON.stringify(pkg));
+};
+
+const touchLockfile = (dir: string, env: NodeJS.ProcessEnv): void => {
+  const target = getManifestPaths({ cwd: dir, env }).find(
+    (file) => file !== "package.json" && file !== "deno.json" && file !== "deno.jsonc",
+  );
+  if (target === undefined) {
+    // Bun deletes empty lockfiles, so touch package.json to force drift.
+    touchPackageJson(dir);
+    return;
+  }
+
+  const filePath = path.join(dir, target);
+  writeFileSync(filePath, `${readFileSync(filePath, "utf8")}\n`);
+};
+
+const touchDenoJson = (dir: string): void => {
+  const filePath = path.join(dir, "deno.json");
+  writeFileSync(filePath, `${readFileSync(filePath, "utf8")}\n`);
+};
+
+const currentHash = (dir: string, env: NodeJS.ProcessEnv): string => {
+  const manifests = getManifestPaths({ cwd: dir, env });
+  return hashManifests(dir, manifests);
 };
 
 for (const pm of PM_NAMES) {
   describe(`e2e: ${pm}`, () => {
-    it("installs on missing node_modules and skips when in sync", () => {
+    it("installs when node_modules is missing, then stays in sync", () => {
       const { dir, env } = setupVirtualEnv(pm);
 
-      syncDeps({ cwd: dir, env });
-      expect(readRecordedHash(dir).length).toBeGreaterThan(0);
+      expect(detectPackageManager({ cwd: dir, env })).toBe(pm);
 
-      // Second run must be a no-op: install rewrites the lockfile, so the
-      // recorded hash is refreshed on every run. A marker file proves the PM
-      // was not invoked again.
-      const marker = path.join(dir, "node_modules", ".syndep-e2e-marker");
-      writeFileSync(marker, "marker");
-      syncDeps({ cwd: dir, env });
-      expect(existsSync(marker)).toBe(true);
+      expect(syncDeps({ cwd: dir, env })).toBe(true);
+      expect(statSync(path.join(dir, "node_modules")).isDirectory()).toBe(true);
+      expect(readRecordedHash(dir)).toBe(currentHash(dir, env));
+
+      expect(syncDeps({ cwd: dir, env })).toBe(false);
+      const second = readRecordedHash(dir);
+      expect(second).toBe(currentHash(dir, env));
+
+      expect(syncDeps({ cwd: dir, env })).toBe(false);
+      expect(readRecordedHash(dir)).toBe(second);
+      expect(readRecordedHash(dir)).toBe(currentHash(dir, env));
     }, 120_000);
 
-    it("reinstalls when manifests drift", () => {
+    it("reinstalls when package.json drifts", () => {
       const { dir, env } = setupVirtualEnv(pm);
 
-      syncDeps({ cwd: dir, env });
+      expect(syncDeps({ cwd: dir, env })).toBe(true);
       const before = readRecordedHash(dir);
       expect(before.length).toBeGreaterThan(0);
 
-      // package.json is always hashed, so mutating it forces drift.
       touchPackageJson(dir);
 
-      syncDeps({ cwd: dir, env });
+      expect(syncDeps({ cwd: dir, env })).toBe(true);
       expect(readRecordedHash(dir)).not.toBe(before);
+      expect(readRecordedHash(dir)).toBe(currentHash(dir, env));
+    }, 120_000);
+
+    it("reinstalls when the lockfile drifts", () => {
+      const { dir, env } = setupVirtualEnv(pm);
+
+      expect(syncDeps({ cwd: dir, env })).toBe(true);
+      const before = readRecordedHash(dir);
+      expect(before.length).toBeGreaterThan(0);
+
+      touchLockfile(dir, env);
+
+      expect(syncDeps({ cwd: dir, env })).toBe(true);
+      expect(readRecordedHash(dir)).toBe(currentHash(dir, env));
+    }, 120_000);
+
+    it("reinstalls when node_modules is removed", () => {
+      const { dir, env } = setupVirtualEnv(pm);
+
+      expect(syncDeps({ cwd: dir, env })).toBe(true);
+
+      rmSync(path.join(dir, "node_modules"), { recursive: true, force: true });
+
+      expect(syncDeps({ cwd: dir, env })).toBe(true);
+      expect(readRecordedHash(dir)).toBe(currentHash(dir, env));
+    }, 120_000);
+
+    it("skips when the recursion guard is set", () => {
+      const { dir, env } = setupVirtualEnv(pm);
+
+      expect(syncDeps({ cwd: dir, env: withRecursionGuard(env) })).toBe(false);
+      expect(readRecordedHash(dir)).toBe("");
     }, 120_000);
   });
 }
+
+describe("e2e: deno", () => {
+  it("reinstalls when deno.json drifts", () => {
+    const { dir, env } = setupVirtualEnv("deno");
+
+    expect(syncDeps({ cwd: dir, env })).toBe(true);
+    const before = readRecordedHash(dir);
+    expect(before.length).toBeGreaterThan(0);
+
+    touchDenoJson(dir);
+
+    expect(syncDeps({ cwd: dir, env })).toBe(true);
+    expect(readRecordedHash(dir)).not.toBe(before);
+    expect(readRecordedHash(dir)).toBe(currentHash(dir, env));
+  }, 120_000);
+});

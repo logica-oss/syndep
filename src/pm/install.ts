@@ -26,7 +26,6 @@ export interface RunInstallOptions extends ManifestScope {
   pm: PackageManager;
 }
 
-// Returns true on success. Install failures only warn so git never fails.
 export const runInstall = ({ cwd, pm, env }: RunInstallOptions): boolean => {
   if (!isRuntimeAvailable({ cwd, pm, env })) {
     console.warn(
