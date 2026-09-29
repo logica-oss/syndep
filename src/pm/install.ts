@@ -11,10 +11,12 @@ const buildInstallCommand = (pm: PackageManager, env: NodeJS.ProcessEnv): string
   return ci ? ciCommand : local;
 };
 
-const isRuntimeAvailable = (pm: PackageManager): boolean => {
+const isRuntimeAvailable = ({ cwd, pm, env }: RunInstallOptions): boolean => {
   const result = spawnSync(pm, ["--version"], {
+    cwd,
     stdio: "ignore",
     shell: process.platform === "win32",
+    env,
   });
 
   return result.status === 0;
@@ -26,7 +28,7 @@ export interface RunInstallOptions extends ManifestScope {
 
 // Returns true on success. Install failures only warn so git never fails.
 export const runInstall = ({ cwd, pm, env }: RunInstallOptions): boolean => {
-  if (!isRuntimeAvailable(pm)) {
+  if (!isRuntimeAvailable({ cwd, pm, env })) {
     console.warn(
       `[syndep] ${pm} not found, skipping install (see ${PACKAGE_MANAGERS[pm].runtimeHint})`,
     );
