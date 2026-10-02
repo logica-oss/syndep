@@ -1,0 +1,9 @@
+[install]
+# Supply-chain hardening: refuse to install npm package versions published less
+# than 3 days ago (value is in seconds). Freshly published versions are the main
+# window for compromised releases; waiting lets malicious uploads be caught and
+# yanked before they reach us.
+minimumReleaseAge = 259200
+
+# Packages to exempt from the cooldown (e.g. a security fix you need immediately):
+# minimumReleaseAgeExcludes = ["some-package"]
