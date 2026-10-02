@@ -18,7 +18,7 @@
   "author": "Takuto Nagami",
   "repository": {
     "type": "git",
-    "url": "https://github.com/logica0419/syndep.git"
+    "url": "https://github.com/logica-oss/syndep.git"
   },
   "bin": {
     "syndep": "./dist/bin/syndep.mjs",
