@@ -14,3 +14,4 @@ reviews:
     drafts: false
     ignore_usernames:
       - "renovate[bot]"
+      - "mergify[bot]"
