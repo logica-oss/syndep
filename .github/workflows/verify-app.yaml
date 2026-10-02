@@ -1,0 +1,38 @@
+name: Verify (App)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: verify-app-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-app:
+    name: Verify (App)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Wait for autofix
+        uses: logica-oss/actions-toolkit/wait-for-workflow@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
+        with:
+          workflow-id: autofix.yaml
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Bun environment
+        uses: logica-oss/actions-toolkit/setup-bun@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
+      - name: Check
+        run: bun run check
+      - name: Knip
+        run: bun run knip
+      - name: Build
+        run: bun run build
+      - name: Test
+        run: bun run test

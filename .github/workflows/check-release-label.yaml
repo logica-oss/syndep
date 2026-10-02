@@ -1,0 +1,25 @@
+name: Check (Release Label)
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize, reopened]
+
+concurrency:
+  group: check-release-label-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-release-label:
+    name: Check (Release Label)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read # Read PR labels for the release label check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check release label
+        uses: logica-oss/actions-toolkit/check-release-label@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
