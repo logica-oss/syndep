@@ -107,12 +107,11 @@ const currentHash = (dir: string, env: NodeJS.ProcessEnv): string => {
   return hashManifests(dir, manifests);
 };
 
-// CI installs use --immutable/--frozen-lockfile, which refuse to heal a
-// drifted lockfile (e.g. Yarn v4 normalizes a trailing newline away and
-// fails instead). Use a local install so the drift is healed and rehashed.
 const withoutCi = (env: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
   const localEnv = { ...env };
   delete localEnv["CI"];
+  delete localEnv["GITHUB_ACTIONS"];
+  delete localEnv["GITHUB_EVENT_NAME"];
   return localEnv;
 };
 
@@ -159,6 +158,7 @@ for (const pm of PM_NAMES) {
 
       touchLockfile(dir, env);
 
+      // Heal drift locally; CI installs reject lockfile changes.
       expect(syncDeps({ cwd: dir, env: withoutCi(env) })).toBe(true);
       expect(readRecordedHash(dir)).toBe(currentHash(dir, env));
     }, 120_000);
