@@ -107,6 +107,15 @@ const currentHash = (dir: string, env: NodeJS.ProcessEnv): string => {
   return hashManifests(dir, manifests);
 };
 
+// CI installs use --immutable/--frozen-lockfile, which refuse to heal a
+// drifted lockfile (e.g. Yarn v4 normalizes a trailing newline away and
+// fails instead). Use a local install so the drift is healed and rehashed.
+const withoutCi = (env: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
+  const localEnv = { ...env };
+  delete localEnv["CI"];
+  return localEnv;
+};
+
 for (const pm of PM_NAMES) {
   describe(`e2e: ${pm}`, () => {
     it("installs when node_modules is missing, then stays in sync", () => {
@@ -150,7 +159,7 @@ for (const pm of PM_NAMES) {
 
       touchLockfile(dir, env);
 
-      expect(syncDeps({ cwd: dir, env })).toBe(true);
+      expect(syncDeps({ cwd: dir, env: withoutCi(env) })).toBe(true);
       expect(readRecordedHash(dir)).toBe(currentHash(dir, env));
     }, 120_000);
 
