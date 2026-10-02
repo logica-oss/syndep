@@ -107,9 +107,6 @@ Wire the hooks in `package.json`:
 
 ```json
 {
-  "scripts": {
-    "prepare": "simple-git-hooks"
-  },
   "simple-git-hooks": {
     "post-merge": "yarn syndep",
     "post-checkout": "yarn syndep",
@@ -118,10 +115,11 @@ Wire the hooks in `package.json`:
 }
 ```
 
-Hooks are installed on `prepare` (`prepare` runs automatically on local install):
+Install hooks explicitly:
 
 ```sh
 yarn install
+yarn run simple-git-hooks
 ```
 
 </details>
@@ -174,6 +172,7 @@ deno add -D npm:syndep npm:simple-git-hooks
 ```json
 {
   "tasks": {
+    "prepare": "simple-git-hooks",
     "syndep": "syndep"
   }
 }
@@ -183,9 +182,6 @@ deno add -D npm:syndep npm:simple-git-hooks
 
 ```json
 {
-  "scripts": {
-    "prepare": "simple-git-hooks"
-  },
   "simple-git-hooks": {
     "post-merge": "deno task syndep",
     "post-checkout": "deno task syndep",
@@ -194,10 +190,11 @@ deno add -D npm:syndep npm:simple-git-hooks
 }
 ```
 
-Hooks are installed on `prepare` (`prepare` runs automatically on local install):
+Install hooks explicitly:
 
 ```sh
 deno install
+deno task prepare
 ```
 
 </details>
