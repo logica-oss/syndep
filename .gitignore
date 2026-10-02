@@ -1,3 +1,30 @@
+# Logs
+logs
+*.log
+
+# Test coverage output (vitest)
+coverage
+*.lcov
+
+# Dependencies
 node_modules/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Build output
 dist/
+
+# dotenv environment variable files
+.env
+.env.*
+
+# mise local overrides (the tracked mise.toml holds the shared config)
+mise.local.toml
+.mise.local.toml
+
+# macOS
+.DS_Store
+
+# vscode setting folder
 .vscode/

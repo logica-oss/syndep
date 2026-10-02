@@ -64,6 +64,6 @@
     "post-rewrite": "bun src/bin/syndep.ts"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }
