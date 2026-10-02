@@ -50,7 +50,7 @@ jobs:
       - name: Setup Bun environment
         uses: logica-oss/actions-toolkit/setup-bun@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
       - name: Setup Node for publishing
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org
