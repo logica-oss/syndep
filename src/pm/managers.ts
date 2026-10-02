@@ -68,6 +68,8 @@ export const PACKAGE_MANAGERS: Record<PackageManager, PackageManagerInfo> = {
 const MANAGER_NAMES: ReadonlySet<string> = new Set(Object.keys(PACKAGE_MANAGERS));
 export const isPackageManager = (name: string): name is PackageManager => MANAGER_NAMES.has(name);
 
+// First match wins when several lockfiles coexist.
+// Keep npm before deno because npm's package-lock.json is far more common in mixed checkouts.
 const PRIORITY_ORDER: PackageManager[] = ["bun", "pnpm", "yarn", "npm", "deno"];
 export const LOCKFILE_PRIORITY: Array<{ file: string; pm: PackageManager }> =
   PRIORITY_ORDER.flatMap((pm) => PACKAGE_MANAGERS[pm].lockFiles.map((file) => ({ file, pm })));
