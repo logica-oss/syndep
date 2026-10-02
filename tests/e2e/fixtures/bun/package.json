@@ -2,6 +2,5 @@
   "name": "syndep-e2e-bun",
   "dependencies": {
     "picocolors": "1.1.1"
-  },
-  "packageManager": "bun@1.4.2"
+  }
 }
