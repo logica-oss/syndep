@@ -107,6 +107,14 @@ const currentHash = (dir: string, env: NodeJS.ProcessEnv): string => {
   return hashManifests(dir, manifests);
 };
 
+const withoutCi = (env: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
+  const localEnv = { ...env };
+  delete localEnv["CI"];
+  delete localEnv["GITHUB_ACTIONS"];
+  delete localEnv["GITHUB_EVENT_NAME"];
+  return localEnv;
+};
+
 for (const pm of PM_NAMES) {
   describe(`e2e: ${pm}`, () => {
     it("installs when node_modules is missing, then stays in sync", () => {
@@ -150,7 +158,8 @@ for (const pm of PM_NAMES) {
 
       touchLockfile(dir, env);
 
-      expect(syncDeps({ cwd: dir, env })).toBe(true);
+      // Heal drift locally; CI installs reject lockfile changes.
+      expect(syncDeps({ cwd: dir, env: withoutCi(env) })).toBe(true);
       expect(readRecordedHash(dir)).toBe(currentHash(dir, env));
     }, 120_000);
 
