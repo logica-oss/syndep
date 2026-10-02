@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  schedule:
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: read
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Create release
+        id: release
+        uses: logica-oss/actions-toolkit/release@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
+        with:
+          initial-version: v0.1.0
+
+  publish-npm:
+    name: Publish (npm)
+    needs: release
+    if: needs.release.outputs.tag != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+          persist-credentials: false
+      - name: Setup Bun environment
+        uses: logica-oss/actions-toolkit/setup-bun@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
+      - name: Setup Node for publishing
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: lts/*
+          registry-url: https://registry.npmjs.org
+      - name: Sync version with tag
+        env:
+          TAG: ${{ needs.release.outputs.tag }}
+        run: npm pkg set "version=${TAG#v}"
+        shell: bash
+      - name: Build
+        run: bun run build
+      - name: Publish
+        run: npm publish --provenance --access public
+        shell: bash
