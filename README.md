@@ -1,39 +1,40 @@
 # syndep
 
+![NPM Version](https://img.shields.io/npm/v/syndep)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![autofix.ci](https://github.com/logica-oss/syndep/actions/workflows/autofix.yaml/badge.svg)](https://github.com/logica-oss/syndep/actions/workflows/autofix.yaml)
 [![Verify (App)](https://github.com/logica-oss/syndep/actions/workflows/verify-app.yaml/badge.svg)](https://github.com/logica-oss/syndep/actions/workflows/verify-app.yaml)
 [![Verify (Actions)](https://github.com/logica-oss/syndep/actions/workflows/verify-actions.yaml/badge.svg)](https://github.com/logica-oss/syndep/actions/workflows/verify-actions.yaml)
 [![CodeQL Advanced](https://github.com/logica-oss/syndep/actions/workflows/codeql.yaml/badge.svg)](https://github.com/logica-oss/syndep/actions/workflows/codeql.yaml)
 
-Sync `node_modules` after git operations when manifests drifted.  
-Syncs when `package.json` or lockfiles changed, or when `node_modules` is missing.
+**Sync `node_modules`** after git operations when manifests drifted.  
+Syncs when **`package.json` or lockfiles changed**, or when `node_modules` is missing.
 
-Requires Node.js 20 or later (`syndep-bun` runs on Bun without Node).
+Requires **Node.js 20** or later (`syndep-bun` runs on **Bun without Node**)
 
-## What is syndep?
+## What is `syndep`?
 
 ### What it does
 
 - Auto-installs dependencies only when manifests changed or `node_modules` is missing; stays silent otherwise.
-- Never blocks git, even if install fails.
+- **Never blocks git**, even if installation fails.
 
 ### What it is for
 
-- Runs from git hooks (`post-merge`, `post-checkout`, `post-rewrite`) to keep `node_modules` fresh after `pull` and branch switches.
-- `syndep` itself does not manage hooks; hook installation is delegated to other tools like [`simple-git-hooks`](https://github.com/toplenboren/simple-git-hooks).
+- **Runs from git hooks** (`post-merge`, `post-checkout`, `post-rewrite`) to keep `node_modules` fresh after `pull` and branch switches.
+- `syndep` itself **does not manage hooks**.
+  - Hook installation is delegated to other tools like [`simple-git-hooks`](https://github.com/toplenboren/simple-git-hooks).
 
 ## Usage
 
-Pairing with [`simple-git-hooks`](https://github.com/toplenboren/simple-git-hooks) is recommended.  
-Hook installation itself is delegated to `simple-git-hooks`.
+Pairing with [`simple-git-hooks`](https://github.com/toplenboren/simple-git-hooks) is recommended.
 
 Pick your package manager below.
 
 <details>
 <summary>npm</summary>
 
-Install `syndep` plus `simple-git-hooks`:
+Install `syndep` and `simple-git-hooks`:
 
 ```sh
 npm i -D syndep simple-git-hooks
@@ -65,7 +66,7 @@ npm install
 <details>
 <summary>pnpm</summary>
 
-Install `syndep` plus `simple-git-hooks`:
+Install `syndep` and `simple-git-hooks`:
 
 ```sh
 pnpm add -D syndep simple-git-hooks
@@ -97,7 +98,7 @@ pnpm install
 <details>
 <summary>yarn</summary>
 
-Install `syndep` plus `simple-git-hooks`:
+Install `syndep` and `simple-git-hooks`:
 
 ```sh
 yarn add -D syndep simple-git-hooks
@@ -118,7 +119,6 @@ Wire the hooks in `package.json`:
 Install hooks explicitly:
 
 ```sh
-yarn install
 yarn run simple-git-hooks
 ```
 
@@ -127,7 +127,7 @@ yarn run simple-git-hooks
 <details>
 <summary>bun</summary>
 
-Install `syndep` plus `simple-git-hooks`:
+Install `syndep` and `simple-git-hooks`:
 
 ```sh
 bun add -d syndep simple-git-hooks
@@ -148,7 +148,7 @@ Wire the hooks in `package.json`:
 }
 ```
 
-Uses `syndep-bun`, so it runs without node.
+Use `syndep-bun` to run `syndep` **without Node.js**.
 
 Hooks are installed on `prepare` (`prepare` runs automatically on local install):
 
@@ -161,7 +161,7 @@ bun install
 <details>
 <summary>deno</summary>
 
-Install `syndep` plus `simple-git-hooks`:
+Install `syndep` and `simple-git-hooks`:
 
 ```sh
 deno add -D npm:syndep npm:simple-git-hooks
@@ -193,15 +193,14 @@ deno add -D npm:syndep npm:simple-git-hooks
 Install hooks explicitly:
 
 ```sh
-deno install
 deno task prepare
 ```
 
 </details>
 
-## Why syndep?
+## Why `syndep`?
 
-Similar tools for this already existed, but each had a drawback, so syndep was built to cover them.
+Similar tools already exist, but each has its own drawbacks, so `syndep` was built to address them.
 
 ### [post-merge-install](https://www.npmjs.com/package/post-merge-install)
 
