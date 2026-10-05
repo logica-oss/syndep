@@ -19,7 +19,7 @@ jobs:
       actions: read
     steps:
       - name: Wait for autofix
-        uses: logica-oss/actions-toolkit/wait-for-workflow@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
+        uses: logica-oss/actions-toolkit/wait-for-workflow@3caa6b132a2307a0dcbff102d1d1411a2be4107a # v1.0.1
         with:
           workflow-id: autofix.yaml
       - name: Checkout
@@ -27,7 +27,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Setup Bun environment
-        uses: logica-oss/actions-toolkit/setup-bun@778580083dcb3b0ac6c1ac3bbcb902794b9e0acc # v1.0.0
+        uses: logica-oss/actions-toolkit/setup-bun@3caa6b132a2307a0dcbff102d1d1411a2be4107a # v1.0.1
       - name: Check
         run: bun run check
       - name: Knip
