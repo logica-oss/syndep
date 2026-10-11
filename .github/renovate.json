@@ -6,5 +6,12 @@
   "labels": ["dependencies"],
   "minimumReleaseAge": "3 days",
   "rebaseWhen": "conflicted",
-  "gitIgnoredAuthors": ["114827586+autofix-ci[bot]@users.noreply.github.com"]
+  "gitIgnoredAuthors": ["114827586+autofix-ci[bot]@users.noreply.github.com"],
+  "packageRules": [
+    {
+      "description": "Release when a production dependency changes",
+      "matchDepTypes": ["dependencies", "peerDependencies"],
+      "addLabels": ["patch"]
+    }
+  ]
 }
