@@ -10,7 +10,7 @@
   "packageRules": [
     {
       "description": "Release when a production dependency changes",
-      "matchDepTypes": ["dependencies", "peerDependencies"],
+      "matchDepTypes": ["dependencies", "peerDependencies", "optionalDependencies"],
       "addLabels": ["patch"]
     }
   ]
