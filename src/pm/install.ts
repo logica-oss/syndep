@@ -52,7 +52,10 @@ export const runInstall = ({ cwd, pm, env }: RunInstallOptions): boolean => {
 };
 
 // Test-only surface. Production code must not import this.
-export const __test__ = {
+export const __test__: {
+  buildInstallCommand: typeof buildInstallCommand;
+  isCi: typeof isCi;
+} = {
   buildInstallCommand,
   isCi,
 };
