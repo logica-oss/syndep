@@ -1,3 +1,6 @@
-scanners:
-  - vuln
-  - secret
+scan:
+  scanners:
+    - vuln
+    - secret
+pkg:
+  include-dev-deps: true
