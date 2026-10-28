@@ -8,5 +8,6 @@ export default defineConfig({
       include: ["src/**/*.ts"],
       exclude: ["src/bin/**"],
     },
+    reporters: ["default", ["junit", { outputFile: "./test-results/junit.xml" }]],
   },
 });

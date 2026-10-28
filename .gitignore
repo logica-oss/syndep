@@ -6,6 +6,9 @@ logs
 coverage
 *.lcov
 
+# Test results output (vitest junit reporter for Codecov Test Analytics)
+test-results
+
 # Dependencies
 node_modules/
 
