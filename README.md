@@ -6,6 +6,8 @@
 [![Verify (App)](https://github.com/logica-oss/syndep/actions/workflows/verify-app.yaml/badge.svg)](https://github.com/logica-oss/syndep/actions/workflows/verify-app.yaml)
 [![Verify (Actions)](https://github.com/logica-oss/syndep/actions/workflows/verify-actions.yaml/badge.svg)](https://github.com/logica-oss/syndep/actions/workflows/verify-actions.yaml)
 [![CodeQL Advanced](https://github.com/logica-oss/syndep/actions/workflows/codeql.yaml/badge.svg)](https://github.com/logica-oss/syndep/actions/workflows/codeql.yaml)
+ [![Trivy](https://github.com/logica-oss/syndep/actions/workflows/trivy.yaml/badge.svg)](https://github.com/logica-oss/syndep/actions/workflows/trivy.yaml)
+[![codecov](https://codecov.io/gh/logica-oss/syndep/graph/badge.svg)](https://codecov.io/gh/logica-oss/syndep)
 
 **Sync `node_modules`** after git operations when manifests drifted.  
 Syncs when **`package.json` or lockfiles changed**, or when `node_modules` is missing.
