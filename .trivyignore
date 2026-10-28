@@ -1,9 +1,0 @@
-# Transitive dev-only dependencies via vitest 5.0.5 (test runner, not shipped in dist/).
-# vite 7.3.6 is pinned by vitest's peer range; fixed in 7.3.7. Re-evaluate on vitest update.
-CVE-2026-112942 exp:2027-01-28
-CVE-2026-112943 exp:2027-01-28
-CVE-2026-112944 exp:2027-01-28
-CVE-2026-112946 exp:2027-01-28
-CVE-2026-112945 exp:2027-01-28
-# source-map-js 1.2.1 via postcss via vite via vitest. Fixed in 1.2.2. Same re-evaluation trigger.
-CVE-2026-93749 exp:2027-01-28
