@@ -39,6 +39,7 @@
   "scripts": {
     "build": "bun -b tsdown",
     "check": "bun -b tsc --noEmit",
+    "coverage": "bun -b vitest run --coverage",
     "format": "bun -b sort-package-json && bun -b oxfmt --write",
     "knip": "bun -b knip-bun",
     "lint": "bun -b oxlint --fix",
@@ -48,6 +49,7 @@
   "devDependencies": {
     "@types/bun": "1.4.4",
     "@types/node": "26.6.5",
+    "@vitest/coverage-v8": "5.0.5",
     "knip": "6.43.0",
     "oxfmt": "0.74.0",
     "oxlint": "1.89.0",
