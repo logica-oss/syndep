@@ -15,3 +15,9 @@ reviews:
     ignore_usernames:
       - "renovate[bot]"
       - "mergify[bot]"
+
+  path_instructions:
+    - path: "package.json"
+      instructions: "The coverage script intentionally keeps the `bun -b` flag: V8 coverage output was verified identical under Bun and Node runtimes, and `-b` keeps runtime consistency with the other scripts. Do not suggest removing it."
+    - path: "vitest.config.ts"
+      instructions: "The V8 coverage provider is intentional: `bun run coverage` was verified to generate coverage/lcov.info with identical numbers under both Bun and Node runtimes. Do not suggest switching to the Istanbul provider."

@@ -36,3 +36,27 @@ jobs:
         run: bun run build
       - name: Test
         run: bun run test
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Bun environment
+        uses: logica-oss/actions-toolkit/setup-bun@f709233adc19c1e133595ef3776fa5328d2632c9 # v1.2.2
+      - name: Coverage
+        run: bun run coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: ./coverage/lcov.info
+          disable_search: true
+          use_oidc: true
+          fail_ci_if_error: true
