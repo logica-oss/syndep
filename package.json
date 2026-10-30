@@ -51,7 +51,7 @@
     "@types/node": "26.6.5",
     "@vitest/coverage-v8": "5.0.5",
     "knip": "6.43.0",
-    "oxfmt": "0.74.0",
+    "oxfmt": "0.75.0",
     "oxlint": "1.89.0",
     "oxlint-tsgolint": "7.0.2005",
     "simple-git-hooks": "2.14.0",
