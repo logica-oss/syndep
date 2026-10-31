@@ -28,6 +28,8 @@ jobs:
       - name: Format
         run: bun run format
       - name: Sync Agent Config
-        uses: logica-oss/actions-toolkit/sync-agent-config@7da75ca761d71af4d36eb1d1d33eb78d0c906a32 # v1.2.3
+        uses: logica-oss/synac@18e9665aa5e12b0705225031dfb6f20d234ec48b # v0.2.0
+        with:
+          verify: "false"
       - name: Autofix Text
         uses: logica-oss/actions-toolkit/autofix-text@7da75ca761d71af4d36eb1d1d33eb78d0c906a32 # v1.2.3
